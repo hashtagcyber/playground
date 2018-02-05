@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 from datetime import datetime, timedelta
+from subprocess import call
 
-data='schedule.txt'
+data='trainschedule.txt'
 shuttlebuffer = timedelta(seconds=1800)
 
+def tellme(train):
+        call(['notify-send','TrainTime','Leave in 5 mins to catch %s' % train])
 
 def getSchedule(schedulefile):
         with open(data) as f:
@@ -37,8 +40,10 @@ def checkTrains(now,trains):
         print 'There are %d trains remaining.' % (len(trainlist))
         nexttrain = trainlist[0]
         waitTime = nexttrain - shuttlebuffer - now
-        print 'Leave in the next %2f minutes to catch the %s' % (waitTime.seconds/60 , datetime.strftime(nexttrain,'%H:%M'))
-
+        print 'Leave in the next %i minutes to catch the %s' % (waitTime.seconds/60 , datetime.strftime(nexttrain,'%H:%M'))
+        if waitTime.seconds/60 == 5:
+                train = datetime.strftime(nexttrain, '%H:%M')
+                tellme(train)
 if __name__ == '__main__':
         sched = getSchedule(data)
         trains = mkScheduleDict(sched)
